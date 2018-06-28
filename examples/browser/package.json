@@ -2,6 +2,9 @@
   "private": true,
   "name": "@theia/example-browser",
   "version": "0.3.12",
+  "theia": {
+    "target": "browser"
+  },
   "dependencies": {
     "@theia/callhierarchy": "^0.3.12",
     "@theia/core": "^0.3.12",

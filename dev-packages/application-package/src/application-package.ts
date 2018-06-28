@@ -21,7 +21,7 @@ import { NpmRegistry, NpmRegistryConfig, NodePackage, PublishedNodePackage, sort
 import { Extension, ExtensionPackage, RawExtensionPackage } from './extension-package';
 import { ExtensionPackageCollector } from './extension-package-collector';
 
-export type ApplicationPackageTarget = 'browser' | 'electron';
+export type ApplicationPackageTarget = 'browser' | 'electron' | 'hybrid';
 export class ApplicationPackageConfig extends NpmRegistryConfig {
     readonly target: ApplicationPackageTarget;
 }
@@ -40,7 +40,7 @@ export class ApplicationPackage {
 
     static defaultConfig: ApplicationPackageConfig = {
         ...NpmRegistry.defaultConfig,
-        target: 'browser'
+        target: 'hybrid'
     };
 
     readonly projectPath: string;
@@ -206,6 +206,10 @@ export class ApplicationPackage {
         return this.target === 'electron';
     }
 
+    isHybrid(): boolean {
+        return this.target === 'hybrid';
+    }
+
     ifBrowser<T>(value: T): T | undefined;
     ifBrowser<T>(value: T, defaultValue: T): T;
     ifBrowser<T>(value: T, defaultValue?: T): T | undefined {
@@ -216,6 +220,12 @@ export class ApplicationPackage {
     ifElectron<T>(value: T, defaultValue: T): T;
     ifElectron<T>(value: T, defaultValue?: T): T | undefined {
         return this.isElectron() ? value : defaultValue;
+    }
+
+    ifHybrid<T>(value: T): T | undefined;
+    ifHybrid<T>(value: T, defaultValue: T): T;
+    ifHybrid<T>(value: T, defaultValue?: T): T | undefined {
+        return this.isHybrid() ? value : defaultValue;
     }
 
     get targetBackendModules(): Map<string, string> {

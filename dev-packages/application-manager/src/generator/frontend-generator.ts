@@ -20,15 +20,25 @@ export class FrontendGenerator extends AbstractGenerator {
 
     async generate(): Promise<void> {
         const frontendModules = this.pck.targetFrontendModules;
-        await this.write(this.pck.frontend('index.html'), this.compileIndexHtml(frontendModules));
-        await this.write(this.pck.frontend('index.js'), this.compileIndexJs(frontendModules));
+
+        if (this.package.isHybrid()) {
+            await this.write(this.pck.frontend('browser', 'index.html'), this.compileIndexHtml(this.package.frontendModules));
+            await this.write(this.pck.frontend('electron', 'index.html'), this.compileIndexHtml(this.package.frontendElectronModules));
+            await this.write(this.pck.frontend('browser', 'index.js'), this.compileIndexJs(this.package.frontendModules));
+            await this.write(this.pck.frontend('electron', 'index.js'), this.compileIndexJs(this.package.frontendElectronModules));
+        } else {
+            await this.write(this.pck.frontend('index.html'), this.compileIndexHtml(frontendModules));
+            await this.write(this.pck.frontend('index.js'), this.compileIndexJs(frontendModules));
+        }
+
         if (this.pck.isElectron()) {
             await this.write(this.pck.frontend('electron-main.js'), this.compileElectronMain());
         }
     }
 
     protected compileIndexHtml(frontendModules: Map<string, string>): string {
-        return `<!DOCTYPE html>
+        return `\
+<!DOCTYPE html>
 <html>
 
 <head>${this.compileIndexHead(frontendModules)}
@@ -48,8 +58,10 @@ export class FrontendGenerator extends AbstractGenerator {
     }
 
     protected compileIndexJs(frontendModules: Map<string, string>): string {
-        return `// @ts-check
-${this.ifBrowser("require('es6-promise/auto');")}
+        return `\
+// @ts-check
+${this.ifBrowser(`require('es6-promise/auto');
+`)}\
 require('reflect-metadata');
 const { Container } = require('inversify');
 const { FrontendApplication } = require('@theia/core/lib/browser');
@@ -87,8 +99,8 @@ module.exports = Promise.resolve()${this.compileFrontendModuleImports(frontendMo
     }
 
     protected compileElectronMain(): string {
-        return `// @ts-check
-
+        return `\
+// @ts-check
 // Workaround for https://github.com/electron/electron/issues/9225. Chrome has an issue where
 // in certain locales (e.g. PL), image metrics are wrongly computed. We explicitly set the
 // LC_NUMERIC to prevent this from happening (selects the numeric formatting category of the
