@@ -27,3 +27,20 @@ export class Deferred<T> {
         this.reject = reject;
     });
 }
+
+/**
+ * Simple timeout-as-promise implementation, can be cancelled.
+ *
+ * @param time delay to wait for
+ * @param value value to resolve to after the delay
+ */
+export function delay<T>(time: Number, value?: T): CancellablePromise<T> {
+    const deferred = new Deferred<T>();
+    setTimeout(deferred.resolve, time, value);
+    (deferred.promise as CancellablePromise<T>).cancel = deferred.reject;
+    return deferred.promise;
+}
+
+export interface CancellablePromise<T> extends Promise<T> {
+    cancel?: (error: Error) => void;
+}

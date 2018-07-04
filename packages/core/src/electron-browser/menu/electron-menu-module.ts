@@ -20,6 +20,7 @@ import { FrontendApplicationContribution, ContextMenuRenderer, KeybindingContrib
 import { ElectronMainMenuFactory } from './electron-main-menu-factory';
 import { ElectronContextMenuRenderer } from "./electron-context-menu-renderer";
 import { ElectronMenuContribution } from "./electron-menu-contribution";
+import { ElectronRemoteContribution } from './electron-remote-contribution';
 
 export default new ContainerModule(bind => {
     bind(ElectronMainMenuFactory).toSelf().inSingletonScope();
@@ -32,5 +33,10 @@ export default new ContainerModule(bind => {
     bind(ElectronMenuContribution).toSelf().inSingletonScope();
     for (const serviceIdentifier of [FrontendApplicationContribution, KeybindingContribution, CommandContribution, MenuContribution]) {
         bind(serviceIdentifier).toDynamicValue(ctx => ctx.container.get(ElectronMenuContribution)).inSingletonScope();
+    }
+
+    bind(ElectronRemoteContribution).toSelf().inSingletonScope();
+    for (const serviceIdentifier of [KeybindingContribution, CommandContribution, MenuContribution]) {
+        bind(serviceIdentifier).toService(ElectronRemoteContribution);
     }
 });

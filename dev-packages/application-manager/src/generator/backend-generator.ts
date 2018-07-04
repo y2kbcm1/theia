@@ -36,7 +36,7 @@ export class BackendGenerator extends AbstractGenerator {
         const browser = ${this.compileExpressStatic('/browser')};
 
         application.use('*', (request, ...args) => {
-            const userAgent = request.headers['User-Agent'] || 'unknown';
+            const userAgent = request.headers['user-agent'] || 'unknown';
             const isElectron = /electron/ig.test(userAgent);
             request.url = request.baseUrl || request.url;
             return (isElectron ?
