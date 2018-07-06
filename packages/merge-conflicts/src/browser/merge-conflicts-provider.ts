@@ -70,6 +70,7 @@ export class MergeConflictsProvider {
             const mergeConflicts = this.computeMergeConflicts(editor);
             this.onDidUpdateEmitter.fire(mergeConflicts);
             deferred.resolve(mergeConflicts);
+            this.deferredValues.delete(uri);
         }, 100);
     }
 
